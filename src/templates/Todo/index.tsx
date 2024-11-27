@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as S from "./style";
 import Input from "../../components/input/index";
 import Button from "../../components/Button/index";
@@ -11,6 +11,22 @@ const Todo = () => {
   const [task, setTask] = useState("");
   const [todoList, setTodoList] = useState<string[]>([]);
   const [editingTask, setEditingTask] = useState<string | null>(null);
+  const contentListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentListRef.current) {
+      const height = contentListRef.current.offsetHeight;
+
+      console.log("Altura inicial:", height);
+
+      if (height >= 160) {
+        contentListRef.current.classList.add("overflow");
+      } else {
+        contentListRef.current.classList.remove("overflow");
+      }
+    }
+  }, [todoList]);
+
   const fetchTodos = async () => {
     const response = await fetch("/api/todo");
     const data = await response.json();
@@ -123,27 +139,31 @@ const Todo = () => {
           </Button>
         </form>
 
-        <ul>
-          {todoList.map((todo, index) => {
-            return (
-              <li key={index}>
-                {todo}{" "}
-                <Button
-                  onClick={() => editTask(todo)}
-                  style={{ cursor: "pointer" }}
-                >
-                  Editar
-                </Button>
-                <Button
-                  onClick={() => removeTask(todo)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <FontAwesomeIcon icon={faTimes} /> Remover
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
+        <S.ContentList ref={contentListRef}>
+          <ul>
+            {todoList.map((todo, index) => {
+              return (
+                <li key={index}>
+                  {todo}{" "}
+                  <S.ContentButotn>
+                    <Button
+                      onClick={() => editTask(todo)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      onClick={() => removeTask(todo)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <FontAwesomeIcon icon={faTimes} /> Remover
+                    </Button>
+                  </S.ContentButotn>
+                </li>
+              );
+            })}
+          </ul>
+        </S.ContentList>
       </S.ContentFormResponse>
     </S.Container>
   );
